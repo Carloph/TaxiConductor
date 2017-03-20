@@ -1,4 +1,4 @@
-package com.taxiconductor.View;
+package com.taxiconductor.View.ViewLogin;
 
 /**
  * Created by carlos on 02/03/17.
@@ -13,10 +13,10 @@ public interface LoginView {
 
     void setPasswordError();
 
-    void navigateToHome(String id_driver);
+    void navigateToHome(String status);
 
     void setMessageService(String message);
 
-    void validator(String status);
+    void validator(int id_driver);
 
 }

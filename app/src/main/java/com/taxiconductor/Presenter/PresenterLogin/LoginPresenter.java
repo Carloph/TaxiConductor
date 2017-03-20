@@ -1,16 +1,15 @@
-package com.taxiconductor.Presenter;
+package com.taxiconductor.Presenter.PresenterLogin;
 
 import java.io.UnsupportedEncodingException;
 
-/**
- * Created by carlos on 02/03/17.
- */
 
 public interface LoginPresenter {
+
     void validateCredentials(String username, String password) throws UnsupportedEncodingException;
 
-    void validateSesion(String id_drive);
+    void validateSesion(int id_drive);
 
+    void validateInsertDriver(int id_driver, double latitude, double longitude, int status);
 
     void onDestroy();
 }

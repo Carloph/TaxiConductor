@@ -1,9 +1,12 @@
 package com.taxiconductor.RetrofitAPI;
 
-import com.taxiconductor.RetrofitAPI.Login.ModelStatus;
+import com.taxiconductor.RetrofitAPI.Model.ModelStatus;
 
 import retrofit2.Call;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Query;
 
 /**
@@ -17,6 +20,36 @@ public interface APIService {
                                         @Query("CONTRASENIA") String password);
 
     @GET("validation_session.php")
-    Call<ModelStatus> verificationSession(@Query("ID_CHOFER") String id_driver);
+    Call<ModelStatus> verificationSession(@Query("ID_CHOFER") int id_driver);
+
+    @FormUrlEncoded
+    @POST("insert_driver_location.php")
+    Call<ModelStatus> insertLocation(@Field("ID_CHOFER") int iddriver,
+                             @Field("LATITUD") double latitude,
+                             @Field("LONGITUD") double longitude,
+                             @Field("ESTATUS") int status);
+
+    @FormUrlEncoded
+    @POST("update_driver_status.php")
+    Call<ModelStatus> updateStatus(@Field("ID_CHOFER") int iddriver,
+                           @Field("ESTATUS") int status);
+
+    @FormUrlEncoded
+    @POST("delete_driver_session.php")
+    Call<ModelStatus> deleteDriverSession(@Field("ID_CHOFER") int iddriver);
+
+
+    @FormUrlEncoded
+    @POST("update_driver_location.php")
+    Call<ModelStatus> updateCoordinates(@Field("ID_CHOFER") int iddriver,
+                                @Field("LATITUD") double latitude,
+                                @Field("LONGITUD") double longitude);
+
+    @GET("get_petitions.php")
+    Call<ModelStatus> getPetitions(@Query("ID_CHOFER")int iddriver);
+
+    @FormUrlEncoded
+    @POST("delete_driver_petition.php")
+    Call<ModelStatus> deletePetition(@Field("ID_CHOFER") int idchofer);
 
 }

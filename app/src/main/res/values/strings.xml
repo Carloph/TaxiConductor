@@ -17,4 +17,8 @@
     <string name="action_logoff">Cerrar sesión</string>
     <string name="username_error">Ingresa usuario</string>
     <string name="password_error">Ingresa contraseña</string>
+    <string name="detail_user_session">Usted ha ingresado cómo usuario:</string>
+    <string name="petitions">Peticiones</string>
+    <string name="occupied">Ocupado</string>
+    <string name="development_for">Desarrollado por</string>
 </resources>

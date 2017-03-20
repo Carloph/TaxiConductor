@@ -1,4 +1,4 @@
-package com.taxiconductor.RetrofitAPI.Login;
+package com.taxiconductor.RetrofitAPI.Model;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -15,9 +15,13 @@ public class ModelStatus {
     @SerializedName("message")
     @Expose
     private String message;
+
     @SerializedName("sesion")
     @Expose
-    private ModelIDDriver sesion;
+    private ModelCredentials sesion;
+
+    @SerializedName("petition")
+    private ModelPetition petition;
 
     public String getStatus() {
         return status;
@@ -35,12 +39,19 @@ public class ModelStatus {
         this.message = message;
     }
 
-    public ModelIDDriver getSesion() {
+    public ModelCredentials getSesion() {
         return sesion;
     }
 
-    public void setSesion(ModelIDDriver sesion) {
+    public void setSesion(ModelCredentials sesion) {
         this.sesion = sesion;
     }
 
+    public ModelPetition getPetition() {
+        return petition;
+    }
+
+    public void setPetition(ModelPetition petition) {
+        this.petition = petition;
+    }
 }

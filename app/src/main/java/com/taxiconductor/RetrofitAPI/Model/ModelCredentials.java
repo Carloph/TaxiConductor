@@ -1,4 +1,4 @@
-package com.taxiconductor.RetrofitAPI.Login;
+package com.taxiconductor.RetrofitAPI.Model;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -7,17 +7,17 @@ import com.google.gson.annotations.SerializedName;
  * Created by carlos on 02/03/17.
  */
 
-public class ModelIDDriver {
+public class ModelCredentials {
 
     @SerializedName("ID_CHOFER")
     @Expose
-    private String iDCHOFER;
+    private int iDCHOFER;
 
-    public String getIDCHOFER() {
+    public int getIDCHOFER() {
         return iDCHOFER;
     }
 
-    public void setIDCHOFER(String iDCHOFER) {
+    public void setIDCHOFER(int iDCHOFER) {
         this.iDCHOFER = iDCHOFER;
     }
 

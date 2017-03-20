@@ -1,6 +1,9 @@
-package com.taxiconductor.View;
+package com.taxiconductor.View.ViewLogin;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
@@ -13,23 +16,24 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.taxiconductor.Presenter.LoginPresenterImp;
+import com.taxiconductor.Presenter.PresenterLogin.LoginPresenterImp;
 import com.taxiconductor.R;
+import com.taxiconductor.View.ViewHome.Home;
 
 
-public class Login extends AppCompatActivity implements LoginView{
+public class Login extends AppCompatActivity implements LoginView, View.OnClickListener {
 
     public EditText edt_user;
     public EditText edt_password;
     public Button btn_login;
-    public ProgressBar progressBar;
-
+    public ProgressDialog progressDialog;
     private LoginPresenterImp presenter;
 
+    private SharedPreferences preferences;
+
+
     private static final int REQUEST_ID_ACCESS_COURSE_FINE_LOCATION = 100;
-
-    public static String id_driver_global;
-
+    public static int id_driver_global;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,37 +41,30 @@ public class Login extends AppCompatActivity implements LoginView{
         setContentView(R.layout.activity_login);
 
         checkPermissionLocation();
-        progressBar = (ProgressBar) findViewById(R.id.progress);
-        edt_user  = (EditText)findViewById(R.id.editText_usuario);
-        edt_password = (EditText)findViewById(R.id.editText_password);
-        btn_login = (Button)findViewById(R.id.button_login);
+
+        preferences = getSharedPreferences("Preferences", Context.MODE_PRIVATE);
+
+        progressDialog = new ProgressDialog(this);
+        edt_user = (EditText) findViewById(R.id.editText_usuario);
+        edt_password = (EditText) findViewById(R.id.editText_password);
+        btn_login = (Button) findViewById(R.id.button_login);
 
         presenter = new LoginPresenterImp(this);
 
-
-
-
-        btn_login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                    presenter.validateCredentials(edt_user.getText().toString(), edt_password.getText().toString());
-
-            }
-        });
+        btn_login.setOnClickListener(this);
 
     }
-
 
     /////////////////// METODOS DE VENIDA
     @Override
     public void showProgress() {
-        progressBar.setVisibility(View.VISIBLE);
+        progressDialog.setTitle("Por favor espere...");
+        progressDialog.show();
     }
 
     @Override
     public void hideProgress() {
-        progressBar.setVisibility(View.GONE);
+        progressDialog.dismiss();
     }
 
     @Override
@@ -82,34 +79,38 @@ public class Login extends AppCompatActivity implements LoginView{
 
     @Override
     public void setMessageService(String message) {
-        Toast.makeText(getApplication(),message,Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show();
     }
 
     //// METODOS DE VENIDA VALIDADOR ID_CHOFER
 
     @Override
-    public void validator(String id_driver) {
+    public void validator(int id_driver) {
         id_driver_global = id_driver;
         presenter.validateSesion(id_driver);
     }
 
     @Override
     public void navigateToHome(String status) {
-
-        if(status.equals("2")){
-            Intent intent_home = new Intent(this,Home.class);
-            intent_home.putExtra("ID_CHOFER",id_driver_global);
+        if (status.equals("2")) {
+            presenter.validateInsertDriver(id_driver_global, 0, 0, 0);
+            String user = edt_user.getText().toString();
+            saveOnPreferences(user, id_driver_global);
+            Intent intent_home = new Intent(this, Home.class);
+           /* intent_home.putExtra("ID_CHOFER",id_driver_global);
+            intent_home.putExtra("USUARIO",edt_user.getText().toString());*/
+            intent_home.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent_home);
-            finish();
         }
     }
 
-    @Override protected void onDestroy() {
+    @Override
+    protected void onDestroy() {
         presenter.onDestroy();
         super.onDestroy();
     }
 
-    public void checkPermissionLocation(){
+    public void checkPermissionLocation() {
         if (Build.VERSION.SDK_INT >= 23) {
             int accessCoarsePermission
                     = ContextCompat.checkSelfPermission(Login.this, android.Manifest.permission.ACCESS_COARSE_LOCATION);
@@ -126,4 +127,19 @@ public class Login extends AppCompatActivity implements LoginView{
         }
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.button_login:
+                presenter.validateCredentials(edt_user.getText().toString(), edt_password.getText().toString());
+                break;
+        }
+    }
+
+    private void saveOnPreferences(String user, int id_driver) {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("user", user);
+        editor.putInt("id_driver", id_driver);
+        editor.apply();
+    }
 }
