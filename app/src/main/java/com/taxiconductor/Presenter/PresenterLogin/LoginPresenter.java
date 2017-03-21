@@ -11,5 +11,6 @@ public interface LoginPresenter {
 
     void validateInsertDriver(int id_driver, double latitude, double longitude, int status);
 
+
     void onDestroy();
 }

@@ -63,6 +63,8 @@ public class HomeInteratorImp implements HomeInterator {
                         listener.onSuccessDynamic(response.body().getMessage());
                     }
                 }else{
+
+                    Log.e("ERROR", ""+ response.code());
                     listener.onFailedSuccessPetition("Error en llamar la petición update coordinates");
                 }
             }
@@ -105,6 +107,7 @@ public class HomeInteratorImp implements HomeInterator {
                     }
                 }
                 else {
+                    Log.e("ERROR", ""+ response.code());
                     listener.onFailedSuccessPetition("Error en llamar la petición listen petition");
                 }
             }
@@ -137,6 +140,8 @@ public class HomeInteratorImp implements HomeInterator {
                     }
 
                 }else {
+                    Log.e("ERROR", ""+ response.code());
+                    listener.codeUpdateStatus(response.code(),status);
                     listener.onFailedSuccessPetition("Error en llamar la petición update status");
                 }
             }
@@ -167,6 +172,7 @@ public class HomeInteratorImp implements HomeInterator {
                         listener.onSuccessStatic(response.body().getMessage());
                     }
                 }else {
+                    Log.e("ERROR", ""+ response.code());
                     listener.onFailedSuccessPetition("Error en llamar la petición delete driver");
                 }
 
@@ -200,6 +206,8 @@ public class HomeInteratorImp implements HomeInterator {
                         listener.onSuccessDeletePetition(response.body().getMessage());
                     }
                 }else {
+                    Log.e("ERROR", ""+ response.code());
+                    listener.codeDeletePetition(response.code());
                     listener.onFailedSuccessPetition("Error en llamar la petición delete driver");
                 }
             }

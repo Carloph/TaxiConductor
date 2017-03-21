@@ -17,13 +17,6 @@ public class HomePresenterImp implements HomePresenter, HomeInterator.OnHomeFini
     }
 
     @Override
-    public void validateInsertDriver(int id_driver,double latitude, double longitude, int status) {
-        if (homeView != null) {
-        }
-        homeInteractor.insertDriver(id_driver, latitude, longitude, status, this);
-    }
-
-    @Override
     public void validateUpdateCoordinates(int id_driver, double latitude, double longitude) {
         if(homeView != null){
         }
@@ -88,5 +81,15 @@ public class HomePresenterImp implements HomePresenter, HomeInterator.OnHomeFini
     @Override
     public void onFailedSuccessPetition(String message) {
         homeView.messageFailedPetition(message);
+    }
+
+    @Override
+    public void codeUpdateStatus(int statusCode, int statusDriver) {
+        homeView.codeUpdateStatus(statusCode, statusDriver);
+    }
+
+    @Override
+    public void codeDeletePetition(int statusCode) {
+        homeView.codeDeletePetition(statusCode);
     }
 }

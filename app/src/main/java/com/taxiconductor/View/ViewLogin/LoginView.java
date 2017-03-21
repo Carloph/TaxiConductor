@@ -15,6 +15,8 @@ public interface LoginView {
 
     void navigateToHome(String status);
 
+    void validatorInsertDriver(int statusCode);
+
     void setMessageService(String message);
 
     void validator(int id_driver);

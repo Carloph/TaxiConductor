@@ -58,6 +58,7 @@ public class LoginInteratorImp implements LoginInterator {
 
                                 }
                             }else {
+                                listener.onMessageService("Verifique su conexión a internet");
                                 Log.e("ERROR", "error en loggin 1");
                             }
                         }
@@ -95,7 +96,7 @@ public class LoginInteratorImp implements LoginInterator {
                         }else if(response.body().getStatus().equals("2")) {
 
                             listener.onSuccessFinally(response.body().getStatus());
-                            listener.onMessageService(response.body().getMessage());
+                            //listener.onMessageService(response.body().getMessage());
 
                         }else if(response.body().getStatus().equals("3")){
 
@@ -105,6 +106,7 @@ public class LoginInteratorImp implements LoginInterator {
 
                         }
                     }else {
+                        listener.onMessageService("Verifique su conexión a internet");
                         Log.e("ERROR", "error en validador session 2");
 
                     }
@@ -120,7 +122,6 @@ public class LoginInteratorImp implements LoginInterator {
         }
     }
 
-
     @Override
     public void insertDriver(final int id_driver, final double latitude, final double longitude, final int status, final OnLoginFinishedListener listener) {
         try{
@@ -135,12 +136,14 @@ public class LoginInteratorImp implements LoginInterator {
                     if (response.isSuccessful()) {
 
                         if(response.body().getStatus().equals("1")){
+                            listener.codeValidatorDeleteDriver(response.code());
                             Log.e("response1", response.body().getMessage());
                         }else if(response.body().getStatus().equals("2")){
                             Log.e("response1", response.body().getMessage());
                         }
                     }else{
-                        Log.e("response1", "Error en insertar la petición");
+                        listener.codeValidatorDeleteDriver(response.code());
+                        Log.e("response1", "Error en insertar driver");
                     }
                 }
 
@@ -154,6 +157,4 @@ public class LoginInteratorImp implements LoginInterator {
         }
 
     }
-
-
 }

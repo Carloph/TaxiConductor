@@ -14,6 +14,8 @@ public interface HomeView {
     void executeSoundVibrator(boolean start);
     void messageDeletePetition(String message);
     void messageFailedPetition(String message);
+    void codeUpdateStatus(int statusCode, int statusDriver);
+    void codeDeletePetition(int statusCode);
 
 }
 

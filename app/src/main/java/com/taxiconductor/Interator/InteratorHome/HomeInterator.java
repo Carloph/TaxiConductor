@@ -11,6 +11,8 @@ public interface HomeInterator {
         void onSuccessPetition(ModelStatus petition);
         void onSuccessDeletePetition(String message);
         void onFailedSuccessPetition(String message);
+        void codeUpdateStatus(int statusCode, int statusDriver);
+        void codeDeletePetition(int statusCode);
     }
 
     void insertDriver(int id_driver, double latitude, double longitude, int status, final OnHomeFinishedListener listener);

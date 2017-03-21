@@ -94,19 +94,25 @@ public class Login extends AppCompatActivity implements LoginView, View.OnClickL
     public void navigateToHome(String status) {
         if (status.equals("2")) {
             presenter.validateInsertDriver(id_driver_global, 0, 0, 0);
+        }
+    }
+
+    @Override
+    public void validatorInsertDriver(int statusCode) {
+        if (statusCode==200){
             String user = edt_user.getText().toString();
             saveOnPreferences(user, id_driver_global);
             Intent intent_home = new Intent(this, Home.class);
-           /* intent_home.putExtra("ID_CHOFER",id_driver_global);
-            intent_home.putExtra("USUARIO",edt_user.getText().toString());*/
             intent_home.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent_home);
+            Toast.makeText(getApplication(), "Bienvenido", Toast.LENGTH_LONG).show();
+        }else{
+            Toast.makeText(getApplication(),"Verifique su conexión a internet, intente ingresar de nuevo",Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
     protected void onDestroy() {
-        presenter.onDestroy();
         super.onDestroy();
     }
 

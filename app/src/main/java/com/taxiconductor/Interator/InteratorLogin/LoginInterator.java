@@ -15,6 +15,8 @@ public interface LoginInterator {
         void onMessageService(String message);
 
         void onSuccessFinally(String status);
+
+        void codeValidatorDeleteDriver(int statusCode);
     }
 
     void login(String username, String password, OnLoginFinishedListener listener);

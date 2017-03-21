@@ -81,9 +81,16 @@ public class LoginPresenterImp implements LoginPresenter, LoginInterator.OnLogin
     @Override
     public void onSuccessFinally(String status) {
         loginView.navigateToHome(status);
+        loginView.hideProgress();
+
     }
 
+    @Override
+    public void codeValidatorDeleteDriver(int statusCode) {
+        loginView.validatorInsertDriver(statusCode);
+        loginView.hideProgress();
 
+    }
 }
 
 

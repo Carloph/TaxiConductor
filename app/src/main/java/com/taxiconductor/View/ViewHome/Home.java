@@ -184,25 +184,22 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
             case R.id.button_status_petition:
 
                 if (counter == 0) {
-                    if(mTimerTask == null){
                         startUpdateCoordinates();
-                    }else if(mTimerTaskPetition == null) {
                         startListenerPetition();
-                    }
-                    saved_state=1;
-                    counter++;
-                    mMap.clear();
-                    tv_distance.setText("0 km");
-                    tv_duration.setText("0 min");
-                    presenterHome.validateUpdateStatus(id_driver, 1);
-                    btn_status_petition.setBackgroundColor(Color.GREEN);
-                    btn_status_occupied.setBackgroundColor(ContextCompat.getColor(getApplication(), R.color.colorGrey));
-                    validator_occupied = true;
-                    Toast.makeText(getApplication(), "Ahora está disponible, espere una solicitud de viaje", Toast.LENGTH_LONG).show();
+                        saved_state=1;
+                        counter++;
+                        mMap.clear();
+                        tv_distance.setText("0 km");
+                        tv_duration.setText("0 min");
+                        presenterHome.validateUpdateStatus(id_driver, 1);
+                        btn_status_petition.setBackgroundColor(Color.GREEN);
+                        btn_status_occupied.setBackgroundColor(ContextCompat.getColor(getApplication(), R.color.colorGrey));
+                        validator_occupied = true;
+                        Toast.makeText(getApplication(), "Ahora está disponible, espere una solicitud de viaje", Toast.LENGTH_SHORT).show();
 
                 } else if (counter == 1) {
 
-                    Toast.makeText(getApplication(), "No puede cambiar de estado hasta que tenga una solicitud de viaje", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplication(), "No puede cambiar de estado hasta que tenga una solicitud de viaje", Toast.LENGTH_SHORT).show();
 
                 } else if (counter == 2) {
 
@@ -210,7 +207,7 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
                     counter++;
                     presenterHome.validateUpdateStatus(id_driver, 3);
                     btn_status_petition.setBackgroundColor(Color.BLUE);
-                    Toast.makeText(getApplication(), "Esperando a que el pasajero aborde la unidad", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplication(), "Esperando a que el pasajero aborde la unidad", Toast.LENGTH_SHORT).show();
 
                 } else if (counter == 3) {
 
@@ -225,15 +222,14 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
                     presenterHome.validateUpdateStatus(id_driver, 4);
                     btn_status_petition.setBackgroundColor(Color.RED);
                     presenterHome.validateDeleteDriverPetition(id_driver);
-                    Toast.makeText(getApplication(), "El pasajero ha abordado el taxi, estás dirigiéndote a su destino", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplication(), "El pasajero ha abordado el taxi, estás dirigiéndote a su destino", Toast.LENGTH_SHORT).show();
                 }
                 else if(counter == 4){
                     saved_state = 5;
                     counter = 0;
                     mMap.clear();
-                    btn_status_petition.setBackgroundColor(ContextCompat.getColor(getApplication(), R.color.colorGrey));
-                    Toast.makeText(getApplication(),"Ha terminado el viaje, pulse el botón para estar disponible",Toast.LENGTH_LONG).show();
-                    presenterHome.validateUpdateStatus(id_driver,0);
+                    btn_status_petition.setBackgroundColor(Color.RED);
+                    Toast.makeText(getApplication(),"Ha terminado el viaje, pulse el botón para estar disponible",Toast.LENGTH_SHORT).show();
                 }
 
                 break;
@@ -253,12 +249,12 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
                         counter = 0;
                         presenterHome.validateUpdateStatus(id_driver,5);
                         stopListenerPetition();
-                        Toast.makeText(getApplication(),"Modo ocupado activado",Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplication(),"Modo ocupado activado",Toast.LENGTH_SHORT).show();
 
                     }
                     else if(counter == 2 || counter == 3 || counter == 4){
 
-                        Toast.makeText(getApplication(),"Tiene un viaje asignado",Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplication(),"Tiene un viaje asignado",Toast.LENGTH_SHORT).show();
                     }
 
                 }else {
@@ -301,6 +297,51 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
     @Override
     public void messageFailedPetition(String message) {
         Log.e("MessagePetition", message);
+    }
+
+    @Override
+    public void codeUpdateStatus(int statusCode, int statusDriver) {
+        if(statusDriver == 0){
+            if(statusCode!= 200){
+                presenterHome.validateUpdateStatus(id_driver, 0);
+                Log.e("Error", "en cambiar a estado 0 en servidor");
+
+            }
+        }
+        else if(statusDriver ==  1){
+            if (statusCode != 200){
+                Log.e("Error", "en cambiar a estado 1 en servidor");
+                presenterHome.validateUpdateStatus(id_driver, 1);
+            }
+        }
+        else if(statusDriver ==  2){
+            if(statusCode != 200){
+                Log.e("Error", "en cambiar a estado 2 en servidor");
+                presenterHome.validateUpdateStatus(id_driver, 2);
+
+            }
+        }
+        else if(statusDriver == 3){
+            if(statusCode != 200){
+                Log.e("Error", "en cambiar a estado 3 en servidor");
+
+                presenterHome.validateUpdateStatus(id_driver, 3);
+            }
+        }
+        else if(statusDriver == 4){
+            if(statusCode != 200){
+                Log.e("Error", "en cambiar a estado 4 en servidor");
+                presenterHome.validateUpdateStatus(id_driver, 4);
+            }
+        }
+    }
+
+    @Override
+    public void codeDeletePetition(int statusCode) {
+        if(statusCode!=200){
+            Log.e("Error", "en eliminar petición del servidor");
+            presenterHome.validateDeleteDriverPetition(id_driver);
+        }
     }
 
     @Override
@@ -347,7 +388,7 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
             Vibrator v = (Vibrator) getSystemService(VIBRATOR_SERVICE);
             MediaPlayer mp = MediaPlayer.create(this, R.raw.alert);
             mp.start();
-            v.vibrate(3000);
+            v.vibrate(1500);
         }
     }
 
@@ -465,8 +506,8 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
     }
 
     public void startUpdateCoordinates() {
-
-        this.mTimerTask = new TimerTask() {
+        if(this.mTimerTask==null){
+            this.mTimerTask = new TimerTask() {
             public void run() {
                 handler.post(new Runnable() {
                     public void run() {
@@ -476,15 +517,16 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
                     }
                 });
             }
-        };
+            };
 
-        // public void schedule (TimerTask task, long delay, long period)
-        this.t.schedule(this.mTimerTask, 0, 7000);  //
+            // public void schedule (TimerTask task, long delay, long period)
+            this.t.schedule(this.mTimerTask, 0, 4000);  //
+        }
     }
 
     public void startListenerPetition() {
-
-        this.mTimerTaskPetition = new TimerTask() {
+        if(this.mTimerTaskPetition==null){
+         this.mTimerTaskPetition = new TimerTask() {
             public void run() {
                 handlerPetition.post(new Runnable() {
                     public void run() {
@@ -497,7 +539,8 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
         };
 
         // public void schedule (TimerTask task, long delay, long period)
-        this.tPetition.schedule(this.mTimerTaskPetition, 0, 8000);  //
+        this.tPetition.schedule(this.mTimerTaskPetition, 0, 5000);  //
+        }
 
     }
 
@@ -567,15 +610,19 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
 
     @Override
     public void onBackPressed() {
-        presenterHome.validateDeleteDriver(id_driver);
         saved_state=7;
+        stopListenerPetition();
+        stopUpdateCoordinates();
+        presenterHome.validateDeleteDriver(id_driver);
+        preferences.edit().clear().apply();
+        showProgress();
+        hideProgress();
         finish();
         super.onBackPressed();
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        stopListenerPetition();
         if(saved_state==0){
             outState.putInt("saved_state",saved_state);
             outState.putInt("id_driver",id_driver);
@@ -647,7 +694,6 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
         }
         else if(saved_state==1){
             btn_status_petition.setBackgroundColor(Color.GREEN);
-            startListenerPetition();
         }
         else if(saved_state==2){
             //coordinates_driver = savedInstanceStae.getString("coordinates_driver");
