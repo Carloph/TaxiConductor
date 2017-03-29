@@ -12,10 +12,6 @@ public class Util {
         return preferences.getString("user", "");
     }
 
-    public static String getPassPrefs(SharedPreferences preferences){
-        return preferences.getString("pass", "");
-    }
-
     public static int getIdDriverPrefs(SharedPreferences preferences){
         return preferences.getInt("id_driver", 0);
     }

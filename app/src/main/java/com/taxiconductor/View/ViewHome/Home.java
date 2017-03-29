@@ -75,6 +75,7 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
     private TextView tv_distance;
     private TextView tv_duration;
     private TextView tv_message;
+    private static AlertDialog dialog;
 
     public TimerTask mTimerTask;
     final Handler handler = new Handler();
@@ -145,9 +146,6 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
         mMap.clear();
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mMap.getUiSettings().setZoomControlsEnabled(true);
-        Marker melbourne = mMap.addMarker(new MarkerOptions()
-                .position(new LatLng(driver_latitude, driver_longitude)));
-        melbourne.showInfoWindow();
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) return;
@@ -158,23 +156,25 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
     public void getLocalization(){
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
-        String bestProvider = locationManager.getBestProvider(criteria, true);
+        String bestProvider = locationManager.getBestProvider(criteria, true).toString();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) return;
 
         Location location = locationManager.getLastKnownLocation(bestProvider);
-
-        if (location != null) {
+        if(location!=null){
             onLocationChanged(location);
             driver_latitude = location.getLatitude();
             driver_longitude = location.getLongitude();
+            Log.e("LO QUE VA A ENVIAR: ","Latitud: "+driver_latitude+" Longidut: "+driver_longitude);
             presenterHome.validateUpdateCoordinates(id_driver, driver_latitude, driver_longitude);
             latLng = new LatLng(driver_latitude, driver_longitude);
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
         }
-        locationManager.requestLocationUpdates(bestProvider, 5000, 0, this);
+        else{
+            locationManager.requestLocationUpdates(bestProvider, 1000, 0, this);
+        }
     }
 
     @Override
@@ -349,7 +349,10 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
         if (petition != null) {
             stopListenerPetition();
             coordinates_global = petition;
-            AlertDialog dialog = new AlertDialog.Builder(this).create();
+            if (dialog != null) {
+                dialog = null;
+            }
+            dialog = new AlertDialog.Builder(this).create();
             dialog.setTitle("Petición de viaje");
             dialog.setMessage("Hay una petición de viaje entrante");
             dialog.setCancelable(false);
@@ -371,14 +374,13 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
             dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancelar",
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int buttonId) {
-                            counter=0;
+                            counter=1;
                             presenterHome.validateDeleteDriverPetition(id_driver);
                             Toast.makeText(getApplication(),"Ha cancelado el viaje solicitado",Toast.LENGTH_SHORT).show();
                         }
                     });
             dialog.setIcon(android.R.drawable.ic_dialog_alert);
             dialog.show();
-
         }
     }
 
@@ -388,7 +390,7 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
             Vibrator v = (Vibrator) getSystemService(VIBRATOR_SERVICE);
             MediaPlayer mp = MediaPlayer.create(this, R.raw.alert);
             mp.start();
-            v.vibrate(1500);
+            v.vibrate(2000);
         }
     }
 
@@ -520,7 +522,7 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
             };
 
             // public void schedule (TimerTask task, long delay, long period)
-            this.t.schedule(this.mTimerTask, 0, 4000);  //
+            this.t.schedule(this.mTimerTask, 0, 3000);  //
         }
     }
 
@@ -539,7 +541,7 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
         };
 
         // public void schedule (TimerTask task, long delay, long period)
-        this.tPetition.schedule(this.mTimerTaskPetition, 0, 5000);  //
+        this.tPetition.schedule(this.mTimerTaskPetition, 0, 3000);  //
         }
 
     }
@@ -741,6 +743,9 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
 
     @Override
     public void onLocationChanged(Location location) {
+        locationManager.removeUpdates(this);
+        driver_latitude = location.getLatitude();
+        driver_longitude = location.getLongitude();
     }
 
     @Override
@@ -755,4 +760,9 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
     public void onProviderDisabled(String provider) {
     }
 
+    @Override
+    protected void onPause() {
+        locationManager.removeUpdates(this);
+        super.onPause();
+    }
 }
