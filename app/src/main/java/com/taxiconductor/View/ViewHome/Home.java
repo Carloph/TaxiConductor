@@ -762,7 +762,6 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
 
     @Override
     protected void onPause() {
-        locationManager.removeUpdates(this);
         super.onPause();
     }
 }
