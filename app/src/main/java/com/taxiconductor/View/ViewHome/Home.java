@@ -14,9 +14,7 @@ import android.location.LocationManager;
 import android.location.LocationListener;
 
 import android.media.MediaPlayer;
-import android.os.AsyncTask;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.os.Vibrator;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -49,6 +47,7 @@ import com.taxiconductor.Presenter.PresenterHome.HomePresenterImp;
 import com.taxiconductor.R;
 import com.taxiconductor.RetrofitAPI.Model.ModelStatus;
 import com.taxiconductor.Utils.Util;
+import com.taxiconductor.View.ViewHome.HomeServices.HomeLocationService;
 import com.taxiconductor.View.ViewLogin.Login;
 
 import java.io.UnsupportedEncodingException;
@@ -136,6 +135,7 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
             user = Util.getUserPrefs(preferences);
             tv_id_drive.setText("Usted ha ingresado cómo usuario: " + user);
         }
+        startUpdateZoom();
 
     }
 
@@ -150,7 +150,7 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
                 && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) return;
         mMap.setMyLocationEnabled(true);
-
+    
     }
 
     public void getLocalization(){
@@ -166,8 +166,6 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
             onLocationChanged(location);
             driver_latitude = location.getLatitude();
             driver_longitude = location.getLongitude();
-            Log.e("LO QUE VA A ENVIAR: ","Latitud: "+driver_latitude+" Longidut: "+driver_longitude);
-            presenterHome.validateUpdateCoordinates(id_driver, driver_latitude, driver_longitude);
             latLng = new LatLng(driver_latitude, driver_longitude);
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
@@ -179,13 +177,13 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
 
     @Override
     public void onClick(View v) {
-
+        Intent intentUpdateCoordinates = new Intent(getApplicationContext(), HomeLocationService.class);
         switch (v.getId()) {
             case R.id.button_status_petition:
 
                 if (counter == 0) {
-                        startUpdateCoordinates();
                         startListenerPetition();
+                        startService(intentUpdateCoordinates);
                         saved_state=1;
                         counter++;
                         mMap.clear();
@@ -240,7 +238,7 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
                     if(counter == 0 || counter == 1)
                     {
                         if(mTimerTask == null){
-                            startUpdateCoordinates();
+                            startService(intentUpdateCoordinates);
                         }
                         saved_state = 6;
                         btn_status_petition.setBackgroundColor(ContextCompat.getColor(getApplication(),R.color.colorGrey));
@@ -263,7 +261,7 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
                     validator_occupied = true;
                     presenterHome.validateUpdateStatus(id_driver,0);
                     stopListenerPetition();
-                    stopUpdateCoordinates();
+                    stopService(intentUpdateCoordinates);
                     Toast.makeText(getApplication(),"Modo ocupado desactivado",Toast.LENGTH_LONG).show();
                 }
                 break;
@@ -507,14 +505,13 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
 
     }
 
-    public void startUpdateCoordinates() {
+    public void startUpdateZoom() {
         if(this.mTimerTask==null){
             this.mTimerTask = new TimerTask() {
             public void run() {
                 handler.post(new Runnable() {
                     public void run() {
                         nCounter++;
-                        Log.e("timerTask1", "coordinates driver");
                         getLocalization();
                     }
                 });
@@ -533,23 +530,18 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
                 handlerPetition.post(new Runnable() {
                     public void run() {
                         nCounterPetition++;
-                        Log.e("timerTask2", "petition start");
                         presenterHome.validateListenerPetition(id_driver);
                     }
                 });
             }
         };
-
-        // public void schedule (TimerTask task, long delay, long period)
         this.tPetition.schedule(this.mTimerTaskPetition, 0, 3000);  //
         }
 
     }
 
-    public void stopUpdateCoordinates() {
+    public void stopUpdateZoom() {
         if (this.mTimerTask != null) {
-
-            Log.e("timerTask", "update coordinates cancel");
             this.mTimerTask.cancel();
             this.mTimerTask = null;
         }
@@ -557,7 +549,6 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
 
     public void stopListenerPetition() {
         if (this.mTimerTaskPetition != null) {
-
             Log.e("timerTask", "petitions cancel");
             this.mTimerTaskPetition.cancel();
             this.mTimerTaskPetition = null;
@@ -577,10 +568,11 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
         int id = item.getItemId();
 
         if (id == R.id.action_logout) {
-
+            Intent intentUpdateCoordinates = new Intent(getApplicationContext(), HomeLocationService.class);
                 saved_state=7;
                 stopListenerPetition();
-                stopUpdateCoordinates();
+                stopUpdateZoom();
+                stopService(intentUpdateCoordinates);
                 presenterHome.validateDeleteDriver(id_driver);
                 preferences.edit().clear().apply();
                 showProgress();
@@ -612,9 +604,11 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
 
     @Override
     public void onBackPressed() {
+        Intent intentUpdateCoordinates = new Intent(getApplicationContext(), HomeLocationService.class);
         saved_state=7;
         stopListenerPetition();
-        stopUpdateCoordinates();
+        stopUpdateZoom();
+        stopService(intentUpdateCoordinates);
         presenterHome.validateDeleteDriver(id_driver);
         preferences.edit().clear().apply();
         showProgress();
