@@ -16,7 +16,8 @@ public interface HomeView {
     void messageFailedPetition(String message);
     void codeUpdateStatus(int statusCode, int statusDriver);
     void codeDeletePetition(int statusCode);
-
+    void codeDeleteDriver(int statusCode);
+    void codeInsertHistoryTravel(int statusCode);
 }
 
 

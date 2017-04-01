@@ -160,4 +160,14 @@ public class HomeLocationService extends Service implements LocationListener, Ho
     public void codeDeletePetition(int statusCode) {
 
     }
+
+    @Override
+    public void codeDeleteDriver(int statusCode) {
+
+    }
+
+    @Override
+    public void codeInsertHistoryTravel(int statusCode) {
+
+    }
 }

@@ -8,4 +8,5 @@ public interface HomePresenter {
     void validateUpdateStatus(int id_driver, int status);
     void validateDeleteDriver(int id_driver);
     void validateDeleteDriverPetition(int id_driver);
+    void validateInserHistorTravel(int id_drive,String origin, String destination,String date);
 }

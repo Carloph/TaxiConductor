@@ -167,13 +167,16 @@ public class HomeInteratorImp implements HomeInterator {
             public void onResponse(Call<ModelStatus> call, Response<ModelStatus> response) {
                 if (response.isSuccessful()){
                     if(response.body().getStatus().equals("1")){
-                        listener.onSuccessStatic(response.body().getMessage());
+                        //listener.onSuccessStatic(response.body().getMessage());
+                        listener.codeDeleteDriver(response.code());
                     }else if(response.body().getStatus().equals("2")){
-                        listener.onSuccessStatic(response.body().getMessage());
+                        //listener.onSuccessStatic(response.body().getMessage());
+                        listener.codeDeleteDriver(response.code());
                     }
                 }else {
                     Log.e("ERROR", ""+ response.code());
-                    listener.onFailedSuccessPetition("Error en llamar la petición delete driver");
+                    //listener.onFailedSuccessPetition("Error en llamar la petición delete driver");
+                    listener.codeDeleteDriver(response.code());
                 }
 
             }
@@ -220,6 +223,48 @@ public class HomeInteratorImp implements HomeInterator {
     }catch (Exception e){
         Log.e("ERROR", ""+e);
     }
+    }
+
+    @Override
+    public void insertDriverHistoryTravel(int id_driver, String origin, String destination, String date,final OnHomeFinishedListener listener) {
+        try{
+
+            APIService service = APIClient.getClient().create(APIService.class);
+            Call<ModelStatus> userCall = service.insertHistoryTravel(id_driver,origin,destination,date);
+            userCall.enqueue(new Callback<ModelStatus>() {
+
+                @Override
+                public void onResponse(Call<ModelStatus> call, Response<ModelStatus> response) {
+
+                    if (response.isSuccessful()) {
+
+                        if(response.body().getStatus().equals("1")){
+                            //listener.onSuccessStatic(response.body().getMessage());
+                            Log.e("1",response.body().getMessage());
+                            listener.codeInsertHistoryTravel(response.code());
+
+                        }else if(response.body().getStatus().equals("2")){
+                            //listener.onSuccessStatic(response.body().getMessage());
+                            Log.e("2",response.body().getMessage());
+                            listener.codeInsertHistoryTravel(response.code());
+
+                        }
+                    }else{
+                        //listener.onFailedSuccessPetition("");
+                        Log.e("1","Error en llamar la petición insert history travel");
+                        listener.codeInsertHistoryTravel(response.code());
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ModelStatus> call, Throwable t) {
+                    Log.e("ERROR", ""+ "insert driver"+t);
+                }
+            });
+        }catch (Exception e){
+            Log.e("ERROR", ""+e);
+        }
+
     }
 
 }

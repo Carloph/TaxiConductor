@@ -1,8 +1,5 @@
 package com.taxiconductor.Interator.InteratorLogin;
 
-
-import com.taxiconductor.Interator.InteratorHome.HomeInterator;
-
 public interface LoginInterator {
 
     interface OnLoginFinishedListener {

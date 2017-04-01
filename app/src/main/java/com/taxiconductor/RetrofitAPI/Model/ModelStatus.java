@@ -23,6 +23,11 @@ public class ModelStatus {
     @SerializedName("petition")
     private ModelPetition petition;
 
+    @SerializedName("travel")
+    private ModelTravels travel;
+
+
+
     public String getStatus() {
         return status;
     }
@@ -53,5 +58,13 @@ public class ModelStatus {
 
     public void setPetition(ModelPetition petition) {
         this.petition = petition;
+    }
+
+    public ModelTravels getTravel() {
+        return travel;
+    }
+
+    public void setTravel(ModelTravels travel) {
+        this.travel = travel;
     }
 }

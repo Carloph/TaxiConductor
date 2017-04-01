@@ -8,9 +8,9 @@
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.LOCATION_HARDWARE"/>
+    <uses-permission android:name="android.permission.LOCATION_HARDWARE" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
-    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:name="android.support.multidex.MultiDexApplication"
@@ -20,37 +20,42 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
         <activity
-            android:screenOrientation="portrait"
-            android:name=".View.Splash"
-            >
+            android:name=".View.ViewSplash.Splash"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
+            android:name=".View.ViewLogin.LoginActivity"
             android:screenOrientation="portrait"
-            android:name=".View.ViewLogin.Login"
             android:theme="@style/Theme.AppCompat.NoActionBar">
-        </activity>
 
+        </activity>
         <activity
+            android:name=".View.ViewHome.HomeActivity"
             android:screenOrientation="portrait"
-            android:name=".View.ViewHome.Home"
             android:theme="@style/AppTheme">
+
         </activity>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key"/>
+            android:value="@string/google_maps_key" />
+
         <service
             android:name=".View.ViewHome.HomeServices.HomeLocationService"
             android:enabled="true"
-            android:exported="true" >
+            android:exported="true">
+
         </service>
 
+        <activity
+            android:theme="@style/AppTheme"
+            android:name=".View.ViewTravels.TravelsActivity">
+        </activity>
     </application>
 
 </manifest>

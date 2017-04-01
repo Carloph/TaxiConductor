@@ -47,16 +47,20 @@ import com.taxiconductor.Presenter.PresenterHome.HomePresenterImp;
 import com.taxiconductor.R;
 import com.taxiconductor.RetrofitAPI.Model.ModelStatus;
 import com.taxiconductor.Utils.Util;
+import com.taxiconductor.View.ViewHome.AsyncTask.AsyncTaskSignIn;
 import com.taxiconductor.View.ViewHome.HomeServices.HomeLocationService;
-import com.taxiconductor.View.ViewLogin.Login;
+import com.taxiconductor.View.ViewLogin.LoginActivity;
+import com.taxiconductor.View.ViewTravels.TravelsActivity;
 
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class Home extends AppCompatActivity implements OnMapReadyCallback, LocationListener, View.OnClickListener, HomeView, DirectionFinderListener {
+public class HomeActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener, View.OnClickListener, HomeView, DirectionFinderListener {
 
     public GoogleMap mMap;
     public SupportMapFragment mapFragment;
@@ -105,6 +109,9 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
 
     private SharedPreferences preferences;
 
+    public String history_origin = "";
+    public String history_destination = "";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,6 +143,7 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
             tv_id_drive.setText("Usted ha ingresado cómo usuario: " + user);
         }
         startUpdateZoom();
+        getCurrentDate();
 
     }
 
@@ -213,18 +221,20 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
                     coordinates_origin = coordinates_global.getPetition().getLatitude_client() + "," + coordinates_global.getPetition().getLongitude_client();
                     coordinates_destination = coordinates_global.getPetition().getLatitude_destin() + "," + coordinates_global.getPetition().getLongitude_destin();
                     sendRequest(coordinates_origin, coordinates_destination);
-                    //counter = 0;
                     counter++;
-                    mapFragment.getMapAsync(Home.this);
+                    mapFragment.getMapAsync(HomeActivity.this);
                     tv_message.setText("");
                     presenterHome.validateUpdateStatus(id_driver, 4);
                     btn_status_petition.setBackgroundColor(Color.RED);
                     presenterHome.validateDeleteDriverPetition(id_driver);
+                    presenterHome.validateInserHistorTravel(id_driver,history_origin,history_destination,getCurrentDate());
                     Toast.makeText(getApplication(), "El pasajero ha abordado el taxi, estás dirigiéndote a su destino", Toast.LENGTH_SHORT).show();
                 }
                 else if(counter == 4){
                     saved_state = 5;
                     counter = 0;
+                    history_origin = "";
+                    history_destination = "";
                     mMap.clear();
                     btn_status_petition.setBackgroundColor(Color.RED);
                     Toast.makeText(getApplication(),"Ha terminado el viaje, pulse el botón para estar disponible",Toast.LENGTH_SHORT).show();
@@ -343,6 +353,33 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
     }
 
     @Override
+    public void codeDeleteDriver(int statusCode) {
+        if(statusCode==200){
+            Intent intentUpdateCoordinates = new Intent(getApplicationContext(), HomeLocationService.class);
+            saved_state=7;
+            stopListenerPetition();
+            stopUpdateZoom();
+            stopService(intentUpdateCoordinates);
+            preferences.edit().clear().apply();
+            Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            Toast.makeText(getApplication(),"Ha cerrado sesión correctamente",Toast.LENGTH_LONG).show();
+        }else{
+            Toast.makeText(getApplication(),"Parece que hubo un error al cerrar sesión, inténtalo de nuevo",Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void codeInsertHistoryTravel(int statusCode) {
+        if(statusCode == 200){
+            Toast.makeText(getApplication(),"Viaje registrado en el historial correctamente",Toast.LENGTH_LONG).show();
+        }else{
+            presenterHome.validateInserHistorTravel(id_driver,history_origin,history_destination,getCurrentDate());
+        }
+    }
+
+    @Override
     public void ServicePetition(final ModelStatus petition) {
         if (petition != null) {
             stopListenerPetition();
@@ -450,6 +487,9 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
                 // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(route.startLocation, 13));
                 ((TextView) findViewById(R.id.texView_duration)).setText(route.duration.text);
                 ((TextView) findViewById(R.id.textView_distance)).setText(route.distance.text);
+
+                history_origin = route.startAddress;
+                history_destination = route.endAddress;
 
                 originMarkers.add(mMap.addMarker(new MarkerOptions()
                         //             .title(nombre)
@@ -565,25 +605,18 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        int id = item.getItemId();
-
-        if (id == R.id.action_logout) {
-            Intent intentUpdateCoordinates = new Intent(getApplicationContext(), HomeLocationService.class);
-                saved_state=7;
-                stopListenerPetition();
-                stopUpdateZoom();
-                stopService(intentUpdateCoordinates);
+        switch (item.getItemId()){
+            case R.id.action_logout:
                 presenterHome.validateDeleteDriver(id_driver);
-                preferences.edit().clear().apply();
-                showProgress();
-                hideProgress();
-                Intent intent = new Intent(this, Login.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-
+                return true;
+            case R.id.action_travels:
+                Intent intent_travels = new Intent(this, TravelsActivity.class);
+                startActivity(intent_travels);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
 
-        return super.onOptionsItemSelected(item);
     }
 
     public void showProgress(){
@@ -733,6 +766,15 @@ public class Home extends AppCompatActivity implements OnMapReadyCallback, Locat
             }
         }
     }
+
+    public String getCurrentDate() {
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat mdformat = new SimpleDateFormat("yyyy-MM-dd");
+        String strDate = mdformat.format(calendar.getTime());
+        Log.e("DATE",strDate);
+        return strDate;
+    }
+
 
 
     @Override

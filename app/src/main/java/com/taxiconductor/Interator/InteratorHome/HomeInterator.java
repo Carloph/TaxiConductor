@@ -13,6 +13,8 @@ public interface HomeInterator {
         void onFailedSuccessPetition(String message);
         void codeUpdateStatus(int statusCode, int statusDriver);
         void codeDeletePetition(int statusCode);
+        void codeDeleteDriver(int statusCode);
+        void codeInsertHistoryTravel(int statusCode);
     }
 
     void insertDriver(int id_driver, double latitude, double longitude, int status, final OnHomeFinishedListener listener);
@@ -26,5 +28,7 @@ public interface HomeInterator {
     void deleteDriver(int id_driver,final OnHomeFinishedListener  listener);
 
     void deleteDriverPetition(int id_driver, final OnHomeFinishedListener listener);
+
+    void insertDriverHistoryTravel(int id_driver, String origin, String destination, String date, OnHomeFinishedListener listener);
 
 }

@@ -51,6 +51,13 @@ public class HomePresenterImp implements HomePresenter, HomeInterator.OnHomeFini
         homeInteractor.deleteDriverPetition(id_driver,this);
     }
 
+    @Override
+    public void validateInserHistorTravel(int id_drive, String origin, String destination, String date) {
+        if(homeView != null){
+        }
+        homeInteractor.insertDriverHistoryTravel(id_drive, origin, destination, date,this);
+    }
+
     ////////////////////////////////////RETURN//////////////////////////////////////////////////////
 
     @Override
@@ -91,5 +98,15 @@ public class HomePresenterImp implements HomePresenter, HomeInterator.OnHomeFini
     @Override
     public void codeDeletePetition(int statusCode) {
         homeView.codeDeletePetition(statusCode);
+    }
+
+    @Override
+    public void codeDeleteDriver(int statusCode) {
+        homeView.codeDeleteDriver(statusCode);
+    }
+
+    @Override
+    public void codeInsertHistoryTravel(int statusCode) {
+        homeView.codeInsertHistoryTravel(statusCode);
     }
 }

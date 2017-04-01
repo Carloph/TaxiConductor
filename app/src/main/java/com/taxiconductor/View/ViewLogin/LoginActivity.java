@@ -13,15 +13,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.taxiconductor.Presenter.PresenterLogin.LoginPresenterImp;
 import com.taxiconductor.R;
-import com.taxiconductor.View.ViewHome.Home;
+import com.taxiconductor.View.ViewHome.HomeActivity;
 
 
-public class Login extends AppCompatActivity implements LoginView, View.OnClickListener {
+public class LoginActivity extends AppCompatActivity implements LoginView, View.OnClickListener {
 
     public EditText edt_user;
     public EditText edt_password;
@@ -58,13 +57,13 @@ public class Login extends AppCompatActivity implements LoginView, View.OnClickL
     /////////////////// METODOS DE VENIDA
     @Override
     public void showProgress() {
-        progressDialog.setTitle("Por favor espere...");
-        progressDialog.show();
+        this.progressDialog.setTitle("Por favor espere...");
+        this.progressDialog.show();
     }
 
     @Override
     public void hideProgress() {
-        progressDialog.dismiss();
+        this.progressDialog.dismiss();
     }
 
     @Override
@@ -102,7 +101,7 @@ public class Login extends AppCompatActivity implements LoginView, View.OnClickL
         if (statusCode==200){
             String user = edt_user.getText().toString();
             saveOnPreferences(user, id_driver_global);
-            Intent intent_home = new Intent(this, Home.class);
+            Intent intent_home = new Intent(this, HomeActivity.class);
             intent_home.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent_home);
             Toast.makeText(getApplication(), "Bienvenido", Toast.LENGTH_LONG).show();
@@ -119,15 +118,15 @@ public class Login extends AppCompatActivity implements LoginView, View.OnClickL
     public void checkPermissionLocation() {
         if (Build.VERSION.SDK_INT >= 23) {
             int accessCoarsePermission
-                    = ContextCompat.checkSelfPermission(Login.this, android.Manifest.permission.ACCESS_COARSE_LOCATION);
+                    = ContextCompat.checkSelfPermission(LoginActivity.this, android.Manifest.permission.ACCESS_COARSE_LOCATION);
             int accessFinePermission
-                    = ContextCompat.checkSelfPermission(Login.this, android.Manifest.permission.ACCESS_FINE_LOCATION);
+                    = ContextCompat.checkSelfPermission(LoginActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION);
             if (accessCoarsePermission != PackageManager.PERMISSION_GRANTED
                     || accessFinePermission != PackageManager.PERMISSION_GRANTED) {
 
                 String[] permissions = new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION,
                         android.Manifest.permission.ACCESS_FINE_LOCATION};
-                ActivityCompat.requestPermissions(Login.this, permissions,
+                ActivityCompat.requestPermissions(LoginActivity.this, permissions,
                         REQUEST_ID_ACCESS_COURSE_FINE_LOCATION);
             }
         }

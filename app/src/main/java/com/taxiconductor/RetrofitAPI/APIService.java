@@ -52,4 +52,14 @@ public interface APIService {
     @POST("delete_driver_petition.php")
     Call<ModelStatus> deletePetition(@Field("ID_CHOFER") int idchofer);
 
+    @FormUrlEncoded
+    @POST("insert_history_travel.php")
+    Call<ModelStatus> insertHistoryTravel(@Field("ID_CHOFER") int idchofer,
+                                          @Field("ORIGEN")String origin,
+                                          @Field("DESTINO")String destination,
+                                          @Field("FECHA")String Date);
+
+    @GET("get_history_travel_id.php")
+    Call<ModelStatus> getHistoryTravel(@Query("ID_CHOFER") int id_driver,
+                                       @Query("FECHA") String date);
 }
