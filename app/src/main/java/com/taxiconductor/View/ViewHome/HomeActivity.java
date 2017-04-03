@@ -26,8 +26,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -60,7 +62,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class HomeActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener, View.OnClickListener, HomeView, DirectionFinderListener {
+public class HomeActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener, View.OnClickListener, HomeView, DirectionFinderListener, CompoundButton.OnCheckedChangeListener {
 
     public GoogleMap mMap;
     public SupportMapFragment mapFragment;
@@ -97,6 +99,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private List<Marker> destinationMarkers = new ArrayList<>();
     private List<Polyline> polylinePaths = new ArrayList<>();
     private ProgressDialog progressDialog;
+    private ToggleButton zoom;
 
     LocationManager locationManager;
     private static LatLng latLng;
@@ -124,6 +127,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         tv_id_drive = (TextView) findViewById(R.id.textView_id_driver);
         btn_status_petition = (Button) findViewById(R.id.button_status_petition);
         btn_status_occupied = (Button) findViewById(R.id.button_status_occupied);
+        zoom = (ToggleButton) findViewById(R.id.zoom);
         tv_distance = (TextView) findViewById(R.id.textView_distance);
         tv_duration = (TextView) findViewById(R.id.texView_duration);
         tv_message = (TextView) findViewById(R.id.textView_message);
@@ -133,6 +137,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         btn_status_petition.setOnClickListener(this);
         btn_status_occupied.setOnClickListener(this);
+        zoom.setOnCheckedChangeListener(this);
 
         if(savedInstanceState == null){
             counter = 0;
@@ -142,9 +147,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             user = Util.getUserPrefs(preferences);
             tv_id_drive.setText("Usted ha ingresado cómo usuario: " + user);
         }
-        startUpdateZoom();
+        zoom.setChecked(true);
         getCurrentDate();
-
     }
 
     @Override
@@ -383,6 +387,9 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void ServicePetition(final ModelStatus petition) {
         if (petition != null) {
             stopListenerPetition();
+            if(zoom.isChecked()){
+                zoom.setChecked(false);
+            }
             coordinates_global = petition;
             if (dialog != null) {
                 dialog = null;
@@ -799,5 +806,24 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onPause() {
         super.onPause();
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+        switch (buttonView.getId()){
+            case R.id.zoom:
+                if (isChecked) {
+                    zoom.setBackgroundColor(Color.GREEN);
+                    Toast.makeText(getApplicationContext(),"Foco de cámara activado",Toast.LENGTH_SHORT).show();
+                    startUpdateZoom();
+
+                } else {
+                    zoom.setBackgroundColor(ContextCompat.getColor(getApplication(), R.color.colorGrey));
+                    Toast.makeText(getApplicationContext(),"Foco de cámara desactivado",Toast.LENGTH_SHORT).show();
+                    stopUpdateZoom();
+                }
+                break;
+        }
     }
 }

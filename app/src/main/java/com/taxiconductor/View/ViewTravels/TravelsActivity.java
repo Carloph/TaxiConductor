@@ -75,7 +75,7 @@ public class TravelsActivity extends AppCompatActivity implements TravelsView {
     @Override
     public void errorGetTravels(int statusCode) {
         if(statusCode >= 500){
-            Toast.makeText(getApplication(),"Hubo un error al obtener el historial",Toast.LENGTH_LONG).show();
+            presenter.validateTravels(id_driver,getCurrentDate());
         }
     }
 

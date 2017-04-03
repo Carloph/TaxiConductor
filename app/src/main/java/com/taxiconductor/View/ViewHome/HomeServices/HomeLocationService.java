@@ -43,6 +43,7 @@ public class HomeLocationService extends Service implements LocationListener, Ho
         return null;
     }
 
+
     @Override
     public void onCreate() {
         presenterHome = new HomePresenterImp(this);
@@ -52,32 +53,37 @@ public class HomeLocationService extends Service implements LocationListener, Ho
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        try{
+            Timer timer = new Timer();
 
-        Timer timer = new Timer();
+            timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    Log.e("ESTATUS: ", "ACTUALIZANDO COORDENADAS");
+                    getLocalization();
+                    Log.e("LO QUE VA A ENVIAR: ","Latitud: "+
+                            driver_latitude+" Longitud: "+
+                            driver_longitude+"ID DE CONDUCTOR: "+
+                            String.valueOf(id_driver));
+                    presenterHome.validateUpdateCoordinates(id_driver, driver_latitude, driver_longitude);
+                }
+            };
 
-        timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                Log.e("ESTATUS: ", "ACTUALIZANDO COORDENADAS");
-                getLocalization();
-                Log.e("LO QUE VA A ENVIAR: ","Latitud: "+
-                        driver_latitude+" Longitud: "+
-                        driver_longitude+"ID DE CONDUCTOR: "+
-                        String.valueOf(id_driver));
-                presenterHome.validateUpdateCoordinates(id_driver, driver_latitude, driver_longitude);
-            }
-        };
+            timer.scheduleAtFixedRate(timerTask, 0, 3000);
+        }
 
-        timer.scheduleAtFixedRate(timerTask, 0, 3000);
+        catch (Exception e){e.printStackTrace();}
 
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
-        Log.e("ESTATUS: ", "DETENIENDO ACTUALIZACIÓN DE COORDENADAS");
-        this.timerTask.cancel();
-        this.timerTask = null;
+        try{
+            Log.e("ESTATUS: ", "DETENIENDO ACTUALIZACIÓN DE COORDENADAS");
+            this.timerTask.cancel();
+            this.timerTask = null;
+        }catch (Exception e){e.printStackTrace();}
     }
 
     @Override
