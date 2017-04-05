@@ -74,7 +74,7 @@ public class HomeLocationService extends Service implements LocationListener, Ho
 
         catch (Exception e){e.printStackTrace();}
 
-        return START_STICKY;
+        return START_REDELIVER_INTENT;
     }
 
     @Override

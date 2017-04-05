@@ -122,15 +122,16 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_home);
 
         presenterHome = new HomePresenterImp(this);
-
         preferences =  getSharedPreferences("Preferences", Context.MODE_PRIVATE);
+
+
         tv_id_drive = (TextView) findViewById(R.id.textView_id_driver);
         btn_status_petition = (Button) findViewById(R.id.button_status_petition);
         btn_status_occupied = (Button) findViewById(R.id.button_status_occupied);
-        zoom = (ToggleButton) findViewById(R.id.zoom);
         tv_distance = (TextView) findViewById(R.id.textView_distance);
         tv_duration = (TextView) findViewById(R.id.texView_duration);
         tv_message = (TextView) findViewById(R.id.textView_message);
+        zoom = (ToggleButton) findViewById(R.id.zoom);
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -139,15 +140,15 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         btn_status_occupied.setOnClickListener(this);
         zoom.setOnCheckedChangeListener(this);
 
+        tv_id_drive.setText("Usted ha ingresado cómo usuario: " + user);
         if(savedInstanceState == null){
             counter = 0;
             saved_state = 0;
             validator_occupied = true;
             id_driver = Util.getIdDriverPrefs(preferences);
             user = Util.getUserPrefs(preferences);
-            tv_id_drive.setText("Usted ha ingresado cómo usuario: " + user);
+            zoom.setChecked(true);
         }
-        zoom.setChecked(true);
         getCurrentDate();
     }
 
@@ -249,20 +250,15 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             case R.id.button_status_occupied:
 
                 if(validator_occupied){
-                    if(counter == 0 || counter == 1)
-                    {
-                        if(mTimerTask == null){
-                            startService(intentUpdateCoordinates);
-                        }
-                        saved_state = 6;
-                        btn_status_petition.setBackgroundColor(ContextCompat.getColor(getApplication(),R.color.colorGrey));
-                        btn_status_occupied.setBackgroundColor(ContextCompat.getColor(getApplication(), R.color.colorBlack));
-                        validator_occupied = false;
-                        counter = 0;
-                        presenterHome.validateUpdateStatus(id_driver,5);
-                        stopListenerPetition();
-                        Toast.makeText(getApplication(),"Modo ocupado activado",Toast.LENGTH_SHORT).show();
-
+                    if(counter == 0 || counter == 1){
+                    saved_state = 6;
+                    btn_status_petition.setBackgroundColor(ContextCompat.getColor(getApplication(),R.color.colorGrey));
+                    btn_status_occupied.setBackgroundColor(ContextCompat.getColor(getApplication(), R.color.colorBlack));
+                    validator_occupied = false;
+                    counter = 0;
+                    presenterHome.validateUpdateStatus(id_driver,5);
+                    stopListenerPetition();
+                    Toast.makeText(getApplication(),"Modo ocupado activado",Toast.LENGTH_SHORT).show();
                     }
                     else if(counter == 2 || counter == 3 || counter == 4){
 
@@ -659,6 +655,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        outState.putBoolean("validator_occupied", validator_occupied);
         if(saved_state==0){
             outState.putInt("saved_state",saved_state);
             outState.putInt("id_driver",id_driver);
@@ -724,6 +721,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         counter= savedInstanceState.getInt("counter");
         id_driver = savedInstanceState.getInt("id_driver");
         user = savedInstanceState.getString("user");
+        validator_occupied = savedInstanceState.getBoolean("validator_occupied");
 
         if(saved_state == 0){
 
@@ -732,7 +730,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             btn_status_petition.setBackgroundColor(Color.GREEN);
         }
         else if(saved_state==2){
-            //coordinates_driver = savedInstanceStae.getString("coordinates_driver");
+            Log.e(">>>>","se supone que está en estado 1>>>>>>>>>>>>>>>>>>>>>>");
             coordinates_origin = savedInstanceState.getString("coordinates_origin");
             coordinates_destination = savedInstanceState.getString("coordinates_destination");
             sendRequest(coordinates_origin,coordinates_destination);
@@ -757,7 +755,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             btn_status_occupied.setBackgroundColor(ContextCompat.getColor(getApplication(),R.color.colorGrey));
         }
         else if(saved_state == 6){
-            validator_occupied = savedInstanceState.getBoolean("validator_occupied");
 
             if(validator_occupied){
                 if(counter == 0 || counter == 1){
