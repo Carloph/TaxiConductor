@@ -59,11 +59,12 @@ public class HomeInteratorImp implements HomeInterator {
 
                     if(response.body().getStatus().equals("1")){
                         listener.onSuccessDynamic(response.body().getMessage());
+                        Log.e("OK", "Coordanadas actualizadas "+ response.code());
+
                     }else if(response.body().getStatus().equals("2")){
                         listener.onSuccessDynamic(response.body().getMessage());
                     }
                 }else{
-
                     Log.e("ERROR", ""+ response.code());
                     listener.onFailedSuccessPetition("Error en llamar la petición update coordinates");
                 }

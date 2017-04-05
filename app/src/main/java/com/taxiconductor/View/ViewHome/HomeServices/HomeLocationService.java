@@ -13,7 +13,10 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+
+import com.taxiconductor.Constants;
 import com.taxiconductor.Presenter.PresenterHome.HomePresenterImp;
 import com.taxiconductor.RetrofitAPI.Model.ModelStatus;
 import com.taxiconductor.Utils.Util;
@@ -33,6 +36,7 @@ public class HomeLocationService extends Service implements LocationListener, Ho
     TimerTask timerTask;
     private LocationManager locationManager;
     private SharedPreferences preferences;
+    private Timer timer;
 
     int id_driver;
     public double driver_latitude;
@@ -54,9 +58,12 @@ public class HomeLocationService extends Service implements LocationListener, Ho
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         try{
-            Timer timer = new Timer();
 
-            timerTask = new TimerTask() {
+            if(this.timerTask == null){
+
+            this.timer = new Timer();
+
+            this.timerTask = new TimerTask() {
                 @Override
                 public void run() {
                     Log.e("ESTATUS: ", "ACTUALIZANDO COORDENADAS");
@@ -68,13 +75,14 @@ public class HomeLocationService extends Service implements LocationListener, Ho
                     presenterHome.validateUpdateCoordinates(id_driver, driver_latitude, driver_longitude);
                 }
             };
-
-            timer.scheduleAtFixedRate(timerTask, 0, 3000);
+            this.timer.scheduleAtFixedRate(this.timerTask, 0, 3000);
+            }
         }
 
-        catch (Exception e){e.printStackTrace();}
-
-        return START_REDELIVER_INTENT;
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return START_STICKY;
     }
 
     @Override
@@ -83,6 +91,8 @@ public class HomeLocationService extends Service implements LocationListener, Ho
             Log.e("ESTATUS: ", "DETENIENDO ACTUALIZACIÓN DE COORDENADAS");
             this.timerTask.cancel();
             this.timerTask = null;
+            Intent localIntent = new Intent(Constants.ACTION_PROGRESS_EXIT);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
         }catch (Exception e){e.printStackTrace();}
     }
 

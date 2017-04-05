@@ -2,9 +2,11 @@ package com.taxiconductor.View.ViewHome;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -18,6 +20,7 @@ import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -42,6 +45,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.taxiconductor.Constants;
 import com.taxiconductor.DirectionMaps.DirectionFinder;
 import com.taxiconductor.DirectionMaps.DirectionFinderListener;
 import com.taxiconductor.DirectionMaps.Route;
@@ -115,6 +119,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     public String history_origin = "";
     public String history_destination = "";
 
+    Intent intentUpdateCoordinates;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,7 +129,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         presenterHome = new HomePresenterImp(this);
         preferences =  getSharedPreferences("Preferences", Context.MODE_PRIVATE);
-
+        id_driver = Util.getIdDriverPrefs(preferences);
+        user = Util.getUserPrefs(preferences);
 
         tv_id_drive = (TextView) findViewById(R.id.textView_id_driver);
         btn_status_petition = (Button) findViewById(R.id.button_status_petition);
@@ -140,16 +147,28 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         btn_status_occupied.setOnClickListener(this);
         zoom.setOnCheckedChangeListener(this);
 
+        intentUpdateCoordinates = new Intent(getApplicationContext(), HomeLocationService.class);
+
         tv_id_drive.setText("Usted ha ingresado cómo usuario: " + user);
         if(savedInstanceState == null){
             counter = 0;
             saved_state = 0;
             validator_occupied = true;
-            id_driver = Util.getIdDriverPrefs(preferences);
-            user = Util.getUserPrefs(preferences);
             zoom.setChecked(true);
         }
-        getCurrentDate();
+        // Filtro de acciones que serán alertadas
+        IntentFilter filter = new IntentFilter(
+                Constants.ACTION_RUN_ISERVICE);
+        filter.addAction(Constants.ACTION_PROGRESS_EXIT);
+
+        // Crear un nuevo ResponseReceiver
+        ResponseReceiver receiver =
+                new ResponseReceiver();
+        // Registrar el receiver y su filtro
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                receiver,
+                filter);
+
     }
 
     @Override
@@ -169,7 +188,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void getLocalization(){
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
-        String bestProvider = locationManager.getBestProvider(criteria, true).toString();
+        String bestProvider = locationManager.getBestProvider(criteria, true);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) return;
@@ -190,7 +209,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onClick(View v) {
-        Intent intentUpdateCoordinates = new Intent(getApplicationContext(), HomeLocationService.class);
         switch (v.getId()) {
             case R.id.button_status_petition:
 
@@ -355,7 +373,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void codeDeleteDriver(int statusCode) {
         if(statusCode==200){
-            Intent intentUpdateCoordinates = new Intent(getApplicationContext(), HomeLocationService.class);
             saved_state=7;
             stopListenerPetition();
             stopUpdateZoom();
@@ -823,4 +840,21 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
         }
     }
+
+    private class ResponseReceiver extends BroadcastReceiver {
+
+        // Sin instancias
+        private ResponseReceiver() {
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()) {
+                case Constants.ACTION_PROGRESS_EXIT:
+                    Log.e("SERVICE","Se ha detenido el servicio");
+                    break;
+            }
+        }
+    }
+
 }

@@ -55,8 +55,8 @@ public class TravelsActivity extends AppCompatActivity implements TravelsView {
 
     public String getCurrentDate() {
         Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat mdformat = new SimpleDateFormat("yyyy-MM-dd");
-        String strDate = mdformat.format(calendar.getTime());
+        SimpleDateFormat date_format = new SimpleDateFormat("yyyy-MM-dd");
+        String strDate = date_format.format(calendar.getTime());
         Log.e("DATE",strDate);
         return strDate;
     }
@@ -76,6 +76,8 @@ public class TravelsActivity extends AppCompatActivity implements TravelsView {
     public void errorGetTravels(int statusCode) {
         if(statusCode >= 500){
             presenter.validateTravels(id_driver,getCurrentDate());
+        }else{
+                Toast.makeText(getApplication(),"Error 400", Toast.LENGTH_LONG).show();
         }
     }
 

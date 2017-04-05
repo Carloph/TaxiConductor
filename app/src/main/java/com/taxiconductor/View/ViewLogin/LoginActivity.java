@@ -110,11 +110,6 @@ public class LoginActivity extends AppCompatActivity implements LoginView, View.
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
     public void checkPermissionLocation() {
         if (Build.VERSION.SDK_INT >= 23) {
             int accessCoarsePermission
