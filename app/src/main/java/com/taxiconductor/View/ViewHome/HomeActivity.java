@@ -53,7 +53,6 @@ import com.taxiconductor.Presenter.PresenterHome.HomePresenterImp;
 import com.taxiconductor.R;
 import com.taxiconductor.RetrofitAPI.Model.ModelStatus;
 import com.taxiconductor.Utils.Util;
-import com.taxiconductor.View.ViewHome.AsyncTask.AsyncTaskSignIn;
 import com.taxiconductor.View.ViewHome.HomeServices.HomeLocationService;
 import com.taxiconductor.View.ViewLogin.LoginActivity;
 import com.taxiconductor.View.ViewTravels.TravelsActivity;
@@ -105,7 +104,10 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ProgressDialog progressDialog;
     private ToggleButton zoom;
 
-    LocationManager locationManager;
+    private static LocationManager locationManager;
+    private  static Location location;
+    private static Criteria criteria;
+    private static String bestProvider;
     private static LatLng latLng;
 
     public boolean validator_occupied;
@@ -187,13 +189,13 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void getLocalization(){
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        String bestProvider = locationManager.getBestProvider(criteria, true);
+        criteria = new Criteria();
+        bestProvider = locationManager.getBestProvider(criteria, true);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) return;
 
-        Location location = locationManager.getLastKnownLocation(bestProvider);
+        location = locationManager.getLastKnownLocation(bestProvider);
         if(location!=null){
             onLocationChanged(location);
             driver_latitude = location.getLatitude();
@@ -202,9 +204,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
         }
-        else{
-            locationManager.requestLocationUpdates(bestProvider, 1000, 0, this);
-        }
+        locationManager.requestLocationUpdates(bestProvider, 1000, 0, this);
     }
 
     @Override
@@ -671,6 +671,17 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putBoolean("validator_occupied", validator_occupied);
         if(saved_state==0){
@@ -800,7 +811,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onLocationChanged(Location location) {
-        locationManager.removeUpdates(this);
+        //locationManager.removeUpdates(this);
         driver_latitude = location.getLatitude();
         driver_longitude = location.getLongitude();
     }
@@ -815,11 +826,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onProviderDisabled(String provider) {
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
     }
 
     @Override
@@ -840,6 +846,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
         }
     }
+
 
     private class ResponseReceiver extends BroadcastReceiver {
 

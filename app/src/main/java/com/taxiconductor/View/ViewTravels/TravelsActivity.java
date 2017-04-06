@@ -30,10 +30,6 @@ public class TravelsActivity extends AppCompatActivity implements TravelsView {
     private static int id_driver;
     private SharedPreferences preferences;
 
-
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
