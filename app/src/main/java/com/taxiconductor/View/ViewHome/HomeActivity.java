@@ -471,9 +471,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onDirectionFinderStart() {
 
-        progressDialog = ProgressDialog.show(this, "Por favor espere.",
-                "Localizando dirección..!", true);
-
         if (originMarkers != null) {
             for (Marker marker : originMarkers) {
                 marker.remove();
@@ -498,7 +495,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onDirectionFinderSuccess(List<Route> routes) {
 
         try {
-            progressDialog.dismiss();
             polylinePaths = new ArrayList<>();
             originMarkers = new ArrayList<>();
             destinationMarkers = new ArrayList<>();
