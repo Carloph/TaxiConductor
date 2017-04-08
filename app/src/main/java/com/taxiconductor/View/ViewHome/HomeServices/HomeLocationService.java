@@ -81,11 +81,6 @@ public class HomeLocationService extends Service implements LocationListener, Ho
                 this.timerTask = new TimerTask() {
                     @Override
                     public void run() {
-                        Log.e("ESTATUS: ", "ACTUALIZANDO COORDENADAS");
-                        Log.e("LO QUE VA A ENVIAR: ","Latitud: "+
-                                driver_latitude+" Longitud: "+
-                                driver_longitude+"ID DE CONDUCTOR: "+
-                                String.valueOf(id_driver));
                         presenterHome.validateUpdateCoordinates(id_driver, driver_latitude, driver_longitude);
                     }
                 };
@@ -128,24 +123,6 @@ public class HomeLocationService extends Service implements LocationListener, Ho
 
     @Override
     public void onProviderDisabled(String provider) {
-
-    }
-
-    public void getLocalization(){
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        String bestProvider = locationManager.getBestProvider(criteria, true);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) return;
-
-        Location location = locationManager.getLastKnownLocation(bestProvider);
-        if(location!=null){
-            onLocationChanged(location);
-            this.driver_latitude = location.getLatitude();
-            this.driver_longitude = location.getLongitude();
-        }
-        locationManager.requestLocationUpdates(bestProvider, 3000, 0, this);
 
     }
 

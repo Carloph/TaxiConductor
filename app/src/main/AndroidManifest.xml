@@ -47,7 +47,12 @@
             android:name=".View.ViewHome.HomeServices.HomeLocationService"
             android:enabled="true"
             android:exported="true">
+        </service>
 
+        <service
+            android:name=".View.ViewHome.HomeServices.HomePetitionService"
+            android:enabled="true"
+            android:exported="true">
         </service>
 
         <activity

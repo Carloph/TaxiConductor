@@ -54,6 +54,7 @@ import com.taxiconductor.R;
 import com.taxiconductor.RetrofitAPI.Model.ModelStatus;
 import com.taxiconductor.Utils.Util;
 import com.taxiconductor.View.ViewHome.HomeServices.HomeLocationService;
+import com.taxiconductor.View.ViewHome.HomeServices.HomePetitionService;
 import com.taxiconductor.View.ViewLogin.LoginActivity;
 import com.taxiconductor.View.ViewTravels.TravelsActivity;
 
@@ -122,6 +123,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     public String history_destination = "";
 
     Intent intentUpdateCoordinates;
+    Intent petitions;
 
 
     @Override
@@ -150,9 +152,21 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         zoom.setOnCheckedChangeListener(this);
 
         intentUpdateCoordinates = new Intent(getApplicationContext(), HomeLocationService.class);
+        petitions = new Intent(getApplicationContext(), HomePetitionService.class);
 
         tv_id_drive.setText("Usted ha ingresado cómo usuario: " + user);
-        if(savedInstanceState == null){
+
+        if(savedInstanceState != null){
+            if(mTimerTaskPetition==null){
+                if(savedInstanceState.getInt("saved_state")==1){
+                    counter=1;
+                    btn_status_petition.setBackgroundColor(Color.GREEN);
+                }
+                stopService(petitions);
+                startListenerPetition();
+            }
+        }
+        else{
             counter = 0;
             saved_state = 0;
             validator_occupied = true;
@@ -673,8 +687,11 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     protected void onPause() {
+        stopListenerPetition();
+        if(counter==1){
+            startService(petitions);
+        }
         super.onPause();
-
     }
 
     @Override
@@ -752,9 +769,9 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         else if(saved_state==1){
             btn_status_petition.setBackgroundColor(Color.GREEN);
+            Log.e(">>>>","se supone que está en estado 1>>>>>>>>>>>>>>>>>>>>>>");
         }
         else if(saved_state==2){
-            Log.e(">>>>","se supone que está en estado 1>>>>>>>>>>>>>>>>>>>>>>");
             coordinates_origin = savedInstanceState.getString("coordinates_origin");
             coordinates_destination = savedInstanceState.getString("coordinates_destination");
             sendRequest(coordinates_origin,coordinates_destination);
