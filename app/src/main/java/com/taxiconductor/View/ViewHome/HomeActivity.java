@@ -133,8 +133,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         presenterHome = new HomePresenterImp(this);
         preferences =  getSharedPreferences("Preferences", Context.MODE_PRIVATE);
-        id_driver = Util.getIdDriverPrefs(preferences);
-        user = Util.getUserPrefs(preferences);
 
         tv_id_drive = (TextView) findViewById(R.id.textView_id_driver);
         btn_status_petition = (Button) findViewById(R.id.button_status_petition);
@@ -156,22 +154,10 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         tv_id_drive.setText("Usted ha ingresado cómo usuario: " + user);
 
-        if(savedInstanceState != null){
-            if(mTimerTaskPetition==null){
-                if(savedInstanceState.getInt("saved_state")==1){
-                    counter=1;
-                    btn_status_petition.setBackgroundColor(Color.GREEN);
-                }
-                stopService(petitions);
-                startListenerPetition();
-            }
-        }
-        else{
-            counter = 0;
-            saved_state = 0;
-            validator_occupied = true;
-            zoom.setChecked(true);
-        }
+        id_driver = Util.getIdDriverPrefs(preferences);
+        user = Util.getUserPrefs(preferences);
+        checkState(Util.getStatePrefs(preferences));
+
         // Filtro de acciones que serán alertadas
         IntentFilter filter = new IntentFilter(
                 Constants.ACTION_RUN_ISERVICE);
@@ -312,6 +298,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Toast.makeText(this,"Button not finded",Toast.LENGTH_LONG).show();
                 break;
         }
+        saveOnPreferences();
     }
 
     @Override
@@ -637,6 +624,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         switch (item.getItemId()){
             case R.id.action_logout:
+                preferences.edit().clear().apply();
                 presenterHome.validateDeleteDriver(id_driver);
                 return true;
             case R.id.action_travels:
@@ -695,108 +683,74 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putBoolean("validator_occupied", validator_occupied);
-        if(saved_state==0){
-            outState.putInt("saved_state",saved_state);
-            outState.putInt("id_driver",id_driver);
-            outState.putInt("counter",counter);
-            outState.putString("user", user);
-        }
-        else if(saved_state==1){
-            outState.putInt("saved_state",saved_state);
-            outState.putInt("id_driver",id_driver);
-            outState.putInt("counter", counter);
-            outState.putString("user", user);
-        }
-        else if(saved_state==2){
-            outState.putInt("saved_state",saved_state);
-            outState.putInt("id_driver", id_driver);
-            outState.putInt("counter", counter);
-            outState.putString("user", user);
-            outState.putString("coordinates_driver", coordinates_driver);
-            outState.putString("coordinates_origin", coordinates_origin);
-            outState.putString("coordinates_destination", coordinates_destination);
-
-        }
-        else if(saved_state==3){
-            outState.putInt("saved_state",saved_state);
-            outState.putInt("id_driver",id_driver);
-            outState.putInt("counter",counter);
-            outState.putString("user", user);
-            outState.putString("coordinates_origin", coordinates_origin);
-            outState.putString("coordinates_destination", coordinates_destination);
-
-        }
-        else if(saved_state==4){
-            outState.putInt("saved_state",saved_state);
-            outState.putInt("id_driver", id_driver);
-            outState.putInt("counter", counter);
-            outState.putString("user", user);
-            outState.putString("coordinates_origin", coordinates_origin);
-            outState.putString("coordinates_destination", coordinates_destination);
-        }else if(saved_state == 5){
-            outState.putInt("saved_state",saved_state);
-            outState.putInt("id_driver",id_driver);
-            outState.putInt("counter", counter);
-            outState.putString("user", user);
-
-        }
-        else if(saved_state == 6){
-            outState.putInt("saved_state",saved_state);
-            outState.putInt("id_driver",id_driver);
-            outState.putInt("counter", counter);
-            outState.putString("user", user);
-            outState.putBoolean("validator_occupied", validator_occupied);
-        }
-        else if(saved_state==7){
-            outState.clear();
-        }
-        super.onSaveInstanceState(outState);
+    protected void onRestart() {
+        stopService(petitions);
+        startListenerPetition();
+        super.onRestart();
     }
 
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        // Always call the superclass so it can restore the view hierarchy
-        super.onRestoreInstanceState(savedInstanceState);
-        saved_state = savedInstanceState.getInt("saved_state");
-        counter= savedInstanceState.getInt("counter");
-        id_driver = savedInstanceState.getInt("id_driver");
-        user = savedInstanceState.getString("user");
-        validator_occupied = savedInstanceState.getBoolean("validator_occupied");
+    protected void saveOnPreferences() {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt("saved_state",this.saved_state);
+        editor.putInt("counter",this.counter);
+        editor.putBoolean("validator_occupied",validator_occupied);
+        if(saved_state>1){
+            editor.putString("coordinates_origin",coordinates_origin);
+            editor.putString("coordinates_destination",coordinates_destination);
+        }
+        editor.apply();
+    }
+
+    public void checkState(int saved_state) {
 
         if(saved_state == 0){
-
+            counter = 0;
+            this.saved_state = 0;
+            validator_occupied = true;
+            zoom.setChecked(true);
         }
         else if(saved_state==1){
+            counter=Util.getCounterPrefs(preferences);
+            validator_occupied=Util.getValidatorPrefs(preferences);
+            zoom.setChecked(true);
+            startListenerPetition();
             btn_status_petition.setBackgroundColor(Color.GREEN);
-            Log.e(">>>>","se supone que está en estado 1>>>>>>>>>>>>>>>>>>>>>>");
+            stopService(petitions);
         }
         else if(saved_state==2){
-            coordinates_origin = savedInstanceState.getString("coordinates_origin");
-            coordinates_destination = savedInstanceState.getString("coordinates_destination");
+            counter=Util.getCounterPrefs(preferences);
+            validator_occupied=Util.getValidatorPrefs(preferences);
+            coordinates_origin = Util.getOriginPrefs(preferences);
+            coordinates_destination = Util.getDestinationPrefs(preferences);
             sendRequest(coordinates_origin,coordinates_destination);
             btn_status_petition.setBackgroundColor(Color.YELLOW);
         }
         else if(saved_state==3){
 
-            coordinates_origin = savedInstanceState.getString("coordinates_origin");
-            coordinates_destination = savedInstanceState.getString("coordinates_destination");
+            counter=Util.getCounterPrefs(preferences);
+            validator_occupied=Util.getValidatorPrefs(preferences);
+            coordinates_origin = Util.getOriginPrefs(preferences);
+            coordinates_destination = Util.getDestinationPrefs(preferences);
             sendRequest(coordinates_origin,coordinates_destination);
             btn_status_petition.setBackgroundColor(Color.BLUE);
 
         }else if(saved_state==4){
 
-            coordinates_origin = savedInstanceState.getString("coordinates_origin");
-            coordinates_destination = savedInstanceState.getString("coordinates_destination");
+            counter=Util.getCounterPrefs(preferences);
+            validator_occupied=Util.getValidatorPrefs(preferences);
+            coordinates_origin = Util.getOriginPrefs(preferences);
+            coordinates_destination = Util.getDestinationPrefs(preferences);
             sendRequest(coordinates_origin, coordinates_destination);
             btn_status_petition.setBackgroundColor(Color.RED);
         }
         else if(saved_state == 5){
+            counter=Util.getCounterPrefs(preferences);
             btn_status_petition.setBackgroundColor(ContextCompat.getColor(getApplication(),R.color.colorGrey));
             btn_status_occupied.setBackgroundColor(ContextCompat.getColor(getApplication(),R.color.colorGrey));
         }
         else if(saved_state == 6){
-
+            counter=Util.getCounterPrefs(preferences);
+            validator_occupied=Util.getValidatorPrefs(preferences);
             if(validator_occupied){
                 if(counter == 0 || counter == 1){
                     btn_status_occupied.setBackgroundColor(ContextCompat.getColor(getApplication(), R.color.colorGrey));

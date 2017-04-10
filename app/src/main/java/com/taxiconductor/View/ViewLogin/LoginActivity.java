@@ -100,7 +100,7 @@ public class LoginActivity extends AppCompatActivity implements LoginView, View.
     public void validatorInsertDriver(int statusCode) {
         if (statusCode==200){
             String user = edt_user.getText().toString();
-            saveOnPreferences(user, id_driver_global);
+            saveOnPreferences(user, id_driver_global,0);
             Intent intent_home = new Intent(this, HomeActivity.class);
             intent_home.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent_home);
@@ -136,10 +136,11 @@ public class LoginActivity extends AppCompatActivity implements LoginView, View.
         }
     }
 
-    private void saveOnPreferences(String user, int id_driver) {
+    private void saveOnPreferences(String user, int id_driver, int saved_state) {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("user", user);
         editor.putInt("id_driver", id_driver);
+        editor.putInt("saved_state",saved_state);
         editor.apply();
     }
 }

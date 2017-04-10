@@ -87,15 +87,15 @@ public class HomePetitionService extends Service implements HomeView {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(
                     getBaseContext())
                     .setSmallIcon(android.R.drawable.ic_dialog_info)
-                    .setContentTitle("NOTIFICACIÓN")
-                    .setContentText("Tiene una solicitud de servicio")
+                    .setContentTitle("Viaje asignado, toque para abrir")
+                    .setContentText(petition.getPetition().getMessage())
                     .setWhen(System.currentTimeMillis());
 
-            Intent targetIntent = new Intent(getBaseContext(),
+            Intent targetIntent = new Intent(getApplicationContext(),
                     HomeActivity.class);
 
             PendingIntent contentIntent = PendingIntent.getActivity(
-                    getBaseContext(), 0, targetIntent,
+                    getApplicationContext(), 0, targetIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
             builder.setContentIntent(contentIntent);
 
@@ -116,6 +116,8 @@ public class HomePetitionService extends Service implements HomeView {
             this.timerTask = null;
         }catch (Exception e){e.printStackTrace();}
     }
+
+
 
     @Override
     public void executeSoundVibrator(boolean start) {
